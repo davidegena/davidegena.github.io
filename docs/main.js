@@ -672,7 +672,25 @@ class HomeComponent {
             const parallaxInstance1 = new Parallax(scene, {
                 relativeInput: false
             });
+            this.setupMotionPermission();
         }, 2000);
+    }
+    setupMotionPermission() {
+        const DeviceOrientationEventTyped = window.DeviceOrientationEvent;
+        // iOS 13+ requires an explicit permission grant, triggered by a user gesture,
+        // before deviceorientation events are dispatched. parallax-js already attaches
+        // its own listener on init; once permission is granted those events start
+        // flowing to it automatically, no re-registration needed. Android needs none of this.
+        if (!DeviceOrientationEventTyped || typeof DeviceOrientationEventTyped.requestPermission !== 'function') {
+            return;
+        }
+        const requestMotionPermission = () => {
+            document.removeEventListener('touchend', requestMotionPermission);
+            document.removeEventListener('click', requestMotionPermission);
+            DeviceOrientationEventTyped.requestPermission().catch(() => { });
+        };
+        document.addEventListener('touchend', requestMotionPermission, { once: true });
+        document.addEventListener('click', requestMotionPermission, { once: true });
     }
     scrollTo(section) {
         const sectionHtml = document.querySelector('#' + section);
