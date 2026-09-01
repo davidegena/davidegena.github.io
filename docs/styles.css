@@ -11716,13 +11716,6 @@ body {
 .bg-pink {
   background-color: #F97B8B;
 }
-@media only screen and (max-width: 991.5px) {
-  .main-content {
-    height: calc(100vh - 54px);
-    height: calc(100dvh - 54px);
-    overflow-y: scroll;
-  }
-}
 /***** BINARY TEXT EFFECT *****/
 .binaryscroll {
   width: 100%;
