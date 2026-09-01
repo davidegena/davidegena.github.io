@@ -10748,7 +10748,9 @@ section.home {
   background: var(--page-bg);
   padding: 0;
   height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   transition: all 0.4s ease-in-out;
 }
 section.home .intro {
@@ -11670,6 +11672,7 @@ body {
 }
 .main-content {
   height: 100vh;
+  height: 100dvh;
   overflow-y: scroll;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -11716,6 +11719,7 @@ body {
 @media only screen and (max-width: 991.5px) {
   .main-content {
     height: calc(100vh - 54px);
+    height: calc(100dvh - 54px);
     overflow-y: scroll;
   }
 }

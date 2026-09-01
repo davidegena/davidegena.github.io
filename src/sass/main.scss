@@ -10,7 +10,9 @@ section.home {
 	background: var(--page-bg);
 	padding: 0;
 	height: 100vh;
+	height: 100dvh;
 	min-height: 100vh;
+	min-height: 100dvh;
 	@include transition(.4s);
 	.intro {
 		margin: auto;

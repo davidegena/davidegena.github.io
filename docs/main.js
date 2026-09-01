@@ -672,25 +672,63 @@ class HomeComponent {
             const parallaxInstance1 = new Parallax(scene, {
                 relativeInput: false
             });
-            this.setupMotionPermission();
+            // parallax-js's own gyroscope handling relies on outdated user-agent
+            // sniffing and doesn't know about iOS 13+'s permission gate, so it's
+            // unreliable on iOS. Hand iOS off to our own dedicated handler instead
+            // and leave parallax-js untouched for desktop (mouse) and Android,
+            // where its built-in device-orientation support already works.
+            if (this.isIosMotionPermissionRequired()) {
+                parallaxInstance1.disable();
+                this.setupIosTilt(scene);
+            }
         }, 2000);
     }
-    setupMotionPermission() {
+    isIosMotionPermissionRequired() {
         const DeviceOrientationEventTyped = window.DeviceOrientationEvent;
-        // iOS 13+ requires an explicit permission grant, triggered by a user gesture,
-        // before deviceorientation events are dispatched. parallax-js already attaches
-        // its own listener on init; once permission is granted those events start
-        // flowing to it automatically, no re-registration needed. Android needs none of this.
-        if (!DeviceOrientationEventTyped || typeof DeviceOrientationEventTyped.requestPermission !== 'function') {
+        return !!DeviceOrientationEventTyped && typeof DeviceOrientationEventTyped.requestPermission === 'function';
+    }
+    setupIosTilt(scene) {
+        const DeviceOrientationEventTyped = window.DeviceOrientationEvent;
+        const layers = Array.prototype.slice.call(scene.children);
+        if (!layers.length) {
             return;
         }
-        const requestMotionPermission = () => {
-            document.removeEventListener('touchend', requestMotionPermission);
-            document.removeEventListener('click', requestMotionPermission);
-            DeviceOrientationEventTyped.requestPermission().catch(() => { });
+        let calibrationBeta = null;
+        let calibrationGamma = null;
+        const maxTiltDeg = 20;
+        const pixelsPerDepth = 60;
+        const onDeviceOrientation = (event) => {
+            if (event.beta === null || event.gamma === null) {
+                return;
+            }
+            if (calibrationBeta === null || calibrationGamma === null) {
+                calibrationBeta = event.beta;
+                calibrationGamma = event.gamma;
+            }
+            const tiltX = Math.max(-maxTiltDeg, Math.min(maxTiltDeg, event.gamma - calibrationGamma)) / maxTiltDeg;
+            const tiltY = Math.max(-maxTiltDeg, Math.min(maxTiltDeg, event.beta - calibrationBeta)) / maxTiltDeg;
+            layers.forEach((layer) => {
+                const depth = parseFloat(layer.getAttribute('data-depth') || '0');
+                const moveX = tiltX * depth * pixelsPerDepth;
+                const moveY = tiltY * depth * pixelsPerDepth;
+                layer.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+            });
         };
-        document.addEventListener('touchend', requestMotionPermission, { once: true });
-        document.addEventListener('click', requestMotionPermission, { once: true });
+        // iOS requires the permission prompt to be triggered directly by a user
+        // gesture, so we wait for the first tap anywhere on the page.
+        const requestAndBind = () => {
+            document.removeEventListener('touchend', requestAndBind);
+            document.removeEventListener('click', requestAndBind);
+            DeviceOrientationEventTyped.requestPermission()
+                .then((state) => {
+                if (state === 'granted') {
+                    window.addEventListener('deviceorientation', onDeviceOrientation);
+                }
+            })
+                .catch(() => { });
+        };
+        document.addEventListener('touchend', requestAndBind, { once: true });
+        document.addEventListener('click', requestAndBind, { once: true });
     }
     scrollTo(section) {
         const sectionHtml = document.querySelector('#' + section);
