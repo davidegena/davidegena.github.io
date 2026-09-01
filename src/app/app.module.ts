@@ -1,6 +1,4 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { ClickOutsideModule } from 'ng-click-outside';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -15,11 +13,9 @@ import { SharedModule } from './components/shared/shared.module';
     LayoutComponent
   ],
   imports: [
-    BrowserAnimationsModule,
     BrowserModule,
     AppRoutingModule,
     LoaderModule,
-    ClickOutsideModule,
     SharedModule
   ],
   providers: [],

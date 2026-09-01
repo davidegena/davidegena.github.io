@@ -11,16 +11,5 @@ export class BlogComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  
-  scrollTo(section) {
-    const sectionHtml = document.querySelector('#' + section);
-    if (sectionHtml !== null) {
-      sectionHtml.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest',
-      });
-    }
-  }
 
 }

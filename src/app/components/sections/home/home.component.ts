@@ -1,38 +1,40 @@
-import { Component, OnInit, Input, AfterContentInit } from '@angular/core';
-import { trigger, transition, useAnimation } from '@angular/animations';
-import { bounceIn } from 'ng-animate';
+import { Component, OnInit, OnDestroy, AfterContentInit } from '@angular/core';
 
 declare let require: any;
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
-  animations: [
-    trigger('bounce', [transition('* => *', useAnimation(bounceIn, {
-      // Set the duration to 5seconds and delay to 2seconds
-      params: {
-        timing: 3,
-        delay: 0,
-        a: '3000px',
-        b: '-25px',
-        c: '10px',
-        d: '-5px',
-      }
-    }))])
-  ]
+  styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit, AfterContentInit {
-  @Input() themeType: string;
-  public bounce: number = 1;
+export class HomeComponent implements OnInit, OnDestroy, AfterContentInit {
+  public displayText = '';
 
-  constructor() {
-    setInterval(() => {
-      this.bounce = this.bounce < 3 ? this.bounce + 1 : 1;
-    }, 3000);
-  }
+  private readonly phrases: string[] = [
+    "I'm a developer and cybersecurity enthusiast.",
+    "I'm a lover of cinema, vfx and photography.",
+    "I'm a passionate about video games and electronic music."
+  ];
+  private readonly typeSpeedMin = 18;
+  private readonly typeSpeedMax = 48;
+  private readonly wordPauseMin = 60;
+  private readonly wordPauseMax = 160;
+  private readonly deleteSpeedMin = 12;
+  private readonly deleteSpeedMax = 30;
+  private readonly holdTime = 4500;
+  private readonly gapTime = 500;
+
+  private phraseIndex = 0;
+  private charIndex = 0;
+  private isDeleting = false;
+  private typeTimeout: any;
 
   ngOnInit(): void {
+    this.typeLoop();
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.typeTimeout);
   }
 
   ngAfterContentInit() {
@@ -49,6 +51,46 @@ export class HomeComponent implements OnInit, AfterContentInit {
     const sectionHtml = document.querySelector('#' + section);
     if (sectionHtml !== null) {
       sectionHtml.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    }
+  }
+
+  get typedText(): string {
+    return this.displayText.replace(/ $/, ' ');
+  }
+
+  private randomBetween(min: number, max: number): number {
+    return min + Math.random() * (max - min);
+  }
+
+  private typeLoop(): void {
+    const currentPhrase = this.phrases[this.phraseIndex];
+
+    if (!this.isDeleting) {
+      this.charIndex++;
+      this.displayText = currentPhrase.substring(0, this.charIndex);
+
+      if (this.charIndex === currentPhrase.length) {
+        this.isDeleting = true;
+        this.typeTimeout = setTimeout(() => this.typeLoop(), this.holdTime);
+        return;
+      }
+      const lastChar = currentPhrase.charAt(this.charIndex - 1);
+      let delay = this.randomBetween(this.typeSpeedMin, this.typeSpeedMax);
+      if (lastChar === ' ') {
+        delay += this.randomBetween(this.wordPauseMin, this.wordPauseMax);
+      }
+      this.typeTimeout = setTimeout(() => this.typeLoop(), delay);
+    } else {
+      this.charIndex--;
+      this.displayText = currentPhrase.substring(0, this.charIndex);
+
+      if (this.charIndex === 0) {
+        this.isDeleting = false;
+        this.phraseIndex = (this.phraseIndex + 1) % this.phrases.length;
+        this.typeTimeout = setTimeout(() => this.typeLoop(), this.gapTime);
+        return;
+      }
+      this.typeTimeout = setTimeout(() => this.typeLoop(), this.randomBetween(this.deleteSpeedMin, this.deleteSpeedMax));
     }
   }
 

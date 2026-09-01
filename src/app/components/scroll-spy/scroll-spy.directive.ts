@@ -1,4 +1,4 @@
-import { Directive, Injectable, Input, EventEmitter, Output, ElementRef, HostListener } from '@angular/core';
+import { Directive, Input, EventEmitter, Output, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
   selector: '[scrollSpy]'
@@ -7,6 +7,7 @@ export class ScrollSpyDirective {
   @Input() public spiedTags: string[] = [];
   @Output() public sectionChange = new EventEmitter<string>();
   private currentSection?: string;
+  private returnToTopVisible = false;
 
   constructor(private _el: ElementRef) {}
 
@@ -30,12 +31,14 @@ export class ScrollSpyDirective {
       this.sectionChange.emit(this.currentSection);
     }
 
-    if (currentSection === 'home' && document.querySelector('#return-to-top').hasAttribute('style')) {
-      document.querySelector('#return-to-top').removeAttribute('style');
-    } else if (!(document.querySelector('#return-to-top').hasAttribute('style'))) {
-      (document.querySelector('#return-to-top') as HTMLElement).style.display = 'block';
+    const shouldShow = scrollTop > 400;
+    if (shouldShow !== this.returnToTopVisible) {
+      this.returnToTopVisible = shouldShow;
+      const returnToTop = document.querySelector('#return-to-top');
+      if (returnToTop) {
+        returnToTop.classList.toggle('visible', shouldShow);
+      }
     }
-
   }
 
 }

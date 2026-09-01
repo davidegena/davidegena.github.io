@@ -1,0 +1,81 @@
+.text-rotating {
+  display: inline;
+
+  &:after {
+    content: '|';
+    margin-left: 2px;
+    color: var(--accent);
+    animation: typewriter-blink 1.2s step-end infinite;
+  }
+}
+
+@keyframes typewriter-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.signature-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 16px;
+}
+
+.sig-bubbles {
+  position: absolute;
+  top: -16px;
+  width: 24px;
+  height: 0;
+  margin-left: -12px;
+
+  .bubble {
+    &.b1 {
+      width: 14px;
+      height: 14px;
+    }
+    &.b2 {
+      width: 19px;
+      height: 19px;
+    }
+    &.b3 {
+      width: 11px;
+      height: 11px;
+    }
+  }
+}
+.sig-bubbles.spot-left {
+  left: 8.4%;
+}
+.sig-bubbles.spot-mid {
+  left: 55.2%;
+  .bubble.b1 { animation-delay: .35s; }
+  .bubble.b2 { animation-delay: .95s; }
+  .bubble.b3 { animation-delay: 1.55s; }
+}
+.sig-bubbles.spot-right {
+  left: 93.4%;
+  .bubble.b1 { animation-delay: .8s; }
+  .bubble.b2 { animation-delay: 1.4s; }
+  .bubble.b3 { animation-delay: 2s; }
+}
+
+.signature {
+  display: inline-block;
+  width: 540px;
+  max-width: 100%;
+  aspect-ratio: 2614 / 375;
+  background-color: var(--text-strong);
+  transition: background-color .4s ease-in-out;
+  -webkit-mask-image: url('/assets/images/davidegenasign-lab-edition.png');
+  mask-image: url('/assets/images/davidegenasign-lab-edition.png');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}

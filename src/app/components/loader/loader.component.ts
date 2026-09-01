@@ -1,10 +1,8 @@
-import { Component, OnInit, Input, OnDestroy, Inject, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 
 /* spinner */
-import {Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError} from '@angular/router';
-import {DOCUMENT} from '@angular/common';
-import { Config } from "../../app-config";
+import { Router, ActivatedRoute, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-loader',
@@ -13,8 +11,6 @@ import { Config } from "../../app-config";
 })
 export class LoaderComponent implements OnInit, OnDestroy {
   public isSpinnerVisible = true;
-
-  public themeConfig: any;
 
   constructor(private router: Router, @Inject(DOCUMENT) private document: Document, private activatedRoute: ActivatedRoute) {
     this.router.events.subscribe(event => {
@@ -26,8 +22,6 @@ export class LoaderComponent implements OnInit, OnDestroy {
     }, () => {
       this.isSpinnerVisible = false;
     });
-
-    this.themeConfig = Config.config;
   }
 
   ngOnDestroy(): void {
